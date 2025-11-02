@@ -1,0 +1,4 @@
+config.ts
+.vscode
+data/bindings.json
+deno.lock
