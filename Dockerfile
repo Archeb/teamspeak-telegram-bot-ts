@@ -17,6 +17,10 @@ COPY src/ ./src/
 COPY locales/ ./locales/
 COPY main.ts .
 
+# Create a config.ts from the example for build-time caching.
+# The actual config.ts will be mounted by the user at runtime.
+RUN cp config.example.ts config.ts
+
 # Cache the dependencies. This will download all npm modules from the import map.
 # This step is crucial for faster builds if dependencies don't change.
 RUN deno cache main.ts
