@@ -74,6 +74,36 @@ A powerful bot to bridge a TeamSpeak 3 server with a Telegram chat, built on Den
     Binds your Telegram account to your TeamSpeak Unique ID. To find your Unique ID, open TeamSpeak and go to `Tools -> Identities` (or `Ctrl+I`).
     *Example: `/bind AbCdEfG...=`*
 
+### 🐳 Running with Docker
+
+Using Docker is the recommended way to deploy the bot.
+
+1.  **Build the Docker image**:
+    ```sh
+    docker build -t teamspeak-telegram-bot .
+    ```
+
+2.  **Run the container**:
+    You need to mount your `config.ts` file and a `data` directory for persistent bindings.
+
+    ```sh
+    # Create a directory for persistent data on your host machine
+    mkdir ./data
+
+    # Run the container
+    docker run -d \
+      --name ts-tg-bot \
+      -v ./config.ts:/app/config.ts:ro \
+      -v ./data:/app/data \
+      --restart unless-stopped \
+      teamspeak-telegram-bot
+    ```
+    -   `-d`: Run in detached mode (in the background).
+    -   `--name`: Give the container a memorable name.
+    -   `-v ./config.ts:/app/config.ts:ro`: Mounts your local `config.ts` into the container as read-only.
+    -   `-v ./data:/app/data`: Mounts your local `data` directory into the container to persist bindings.
+    -   `--restart unless-stopped`: Ensures the bot restarts automatically if it crashes or the server reboots.
+
 ---
 
 <a name="zh"></a>
@@ -145,3 +175,33 @@ A powerful bot to bridge a TeamSpeak 3 server with a Telegram chat, built on Den
 -   **/bind <TeamSpeak 唯一ID>**
     将你的 Telegram 账号绑定到你的 TeamSpeak 唯一ID。要查找你的唯一ID，请打开 TeamSpeak 并前往 `工具 -> 身份` (或 `Ctrl+I`)。
     *示例: `/bind AbCdEfG...=`*
+
+### 🐳 使用 Docker 运行
+
+推荐使用 Docker 来部署此机器人。
+
+1.  **构建 Docker 镜像**:
+    ```sh
+    docker build -t teamspeak-telegram-bot .
+    ```
+
+2.  **运行容器**:
+    你需要挂载你的 `config.ts` 文件和一个 `data` 目录用于持久化绑定数据。
+
+    ```sh
+    # 在你的宿主机上创建一个用于持久化数据的目录
+    mkdir ./data
+
+    # 运行容器
+    docker run -d \
+      --name ts-tg-bot \
+      -v ./config.ts:/app/config.ts:ro \
+      -v ./data:/app/data \
+      --restart unless-stopped \
+      teamspeak-telegram-bot
+    ```
+    -   `-d`: 在后台以分离模式运行。
+    -   `--name`: 为容器指定一个易于记忆的名称。
+    -   `-v ./config.ts:/app/config.ts:ro`: 将你本地的 `config.ts` 文件以只读模式挂载到容器中。
+    -   `-v ./data:/app/data`: 将你本地的 `data` 目录挂载到容器中，以实现绑定数据的持久化。
+    -   `--restart unless-stopped`: 确保在容器崩溃或服务器重启时，机器人能自动重启。
