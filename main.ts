@@ -188,8 +188,10 @@ async function main() {
       const chat = await telegram.telegram.getChat(telegramConfig.chatId);
       if ("title" in chat) {
         const currentTitle = chat.title;
-        const newTitle = currentTitle.replace(/ \(\d+\)$/, "") +
-          ` (${onlineCount})`;
+        const baseTitle = currentTitle.replace(/ \(\d+\)$/, "").trim();
+        const newTitle = onlineCount > 0
+          ? `${baseTitle} (${onlineCount})`
+          : baseTitle;
 
         if (currentTitle !== newTitle) {
           await telegram.telegram.setChatTitle(
