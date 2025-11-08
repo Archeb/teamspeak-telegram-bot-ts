@@ -147,6 +147,10 @@ async function main() {
     }
   });
 
+  telegram.on("new_chat_title", (ctx) => {
+    ctx.deleteMessage(ctx.message.message_id);
+  });
+
   // --- Polling for Client Moves ---
 
   setInterval(async () => {
