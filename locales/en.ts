@@ -14,4 +14,6 @@ export default {
   bindSuccess: (tsNickname: string) =>
     `✅ Successfully bound to TeamSpeak user ${tsNickname}.`,
   bindError: "❌ Could not find an online user with that ID.",
+  unbindSuccess: "✅ Your TeamSpeak account has been unbound.",
+  unbindError: "❌ You do not have a bound account.",
 };

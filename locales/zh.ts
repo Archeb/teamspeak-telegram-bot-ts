@@ -14,4 +14,6 @@ export default {
   bindSuccess: (tsNickname: string) =>
     `✅ 成功绑定到 TeamSpeak 用户 ${tsNickname}。`,
   bindError: "❌ 找不到具有该 ID 的在线用户。",
+  unbindSuccess: "✅ 你的 TeamSpeak 账号已解除绑定。",
+  unbindError: "❌ 你没有绑定的账号。",
 };

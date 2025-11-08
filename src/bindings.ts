@@ -41,5 +41,17 @@ async function addBinding(tsUid: string, tgId: number, tgDisplayName: string) {
   await saveBindings();
 }
 
-export { loadBindings, getBinding, addBinding };
+export { loadBindings, getBinding, addBinding, removeBindingByTgId };
 export type { Binding };
+
+async function removeBindingByTgId(tgId: number): Promise<boolean> {
+  const tsUidToRemove = Object.keys(bindings).find(
+    (tsUid) => bindings[tsUid].tgId === tgId,
+  );
+  if (tsUidToRemove) {
+    delete bindings[tsUidToRemove];
+    await saveBindings();
+    return true;
+  }
+  return false;
+}
