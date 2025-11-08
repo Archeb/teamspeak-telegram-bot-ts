@@ -21,7 +21,6 @@ A powerful bot to bridge a TeamSpeak 3 server with a Telegram chat, built on Den
     -   `/listuser`: Lists all online users on the TeamSpeak server.
     -   `/chat <message>`: Sends a global message to the TeamSpeak server.
     -   `/bind <TS UID>`: Binds your Telegram account to your TeamSpeak identity.
-    -   `/unbind`: Unbinds your Telegram account from your TeamSpeak identity.
 -   **Account Binding**:
     -   Links a Telegram user to a TeamSpeak Unique ID for enhanced notifications.
     -   **Mentions**: Mentions the bound Telegram user (`@`) in connect/disconnect/list notifications.
@@ -29,7 +28,6 @@ A powerful bot to bridge a TeamSpeak 3 server with a Telegram chat, built on Den
 -   **Bilingual Support**: All bot messages support English (`en`) and Chinese (`zh`), easily configurable.
 -   **Configurable Notifications**: Option to only receive notifications for bound users to reduce noise.
 -   **Persistent Storage**: User bindings are saved in `data/bindings.json` and loaded on startup.
--   **Dynamic Group Title**: Automatically updates the Telegram group title with the current number of online users on the TeamSpeak server.
 
 ### ⚙️ Setup & Configuration
 
@@ -75,9 +73,6 @@ A powerful bot to bridge a TeamSpeak 3 server with a Telegram chat, built on Den
 -   **/bind <TeamSpeak UID>**
     Binds your Telegram account to your TeamSpeak Unique ID. To find your Unique ID, open TeamSpeak and go to `Tools -> Identities` (or `Ctrl+I`).
     *Example: `/bind AbCdEfG...=`*
-
--   **/unbind**
-    Removes the binding between your Telegram account and your TeamSpeak identity.
 
 ### 🐳 Running with Docker
 
@@ -128,7 +123,6 @@ Using Docker is the recommended way to deploy the bot.
     -   `/listuser`: 列出 TeamSpeak 服务器上的所有在线用户。
     -   `/chat <消息>`: 向 TeamSpeak 服务器发送一条全服消息。
     -   `/bind <TS 唯一ID>`: 将你的 Telegram 账号绑定到你的 TeamSpeak 身份。
-    -   `/unbind`: 解除你的 Telegram 账号与 TeamSpeak 身份的绑定。
 -   **账号绑定**:
     -   将 Telegram 用户与 TeamSpeak 唯一ID关联，以实现增强的通知功能。
     -   **用户提及**: 在用户连接/断开/列表通知中，会 @ 对应的已绑定 Telegram 用户。
@@ -136,7 +130,6 @@ Using Docker is the recommended way to deploy the bot.
 -   **双语支持**: 所有机器人消息均支持英文 (`en`) 和中文 (`zh`)，可在配置文件中轻松切换。
 -   **可配置的通知**: 可以选择只为已绑定的用户发送通知，以减少消息干扰。
 -   **持久化存储**: 用户绑定信息会保存在 `data/bindings.json` 文件中，并在启动时加载。
--   **动态群标题**: 自动更新 Telegram 群标题，显示当前 TeamSpeak 服务器的在线人数。
 
 ### ⚙️ 安装与配置
 
@@ -182,9 +175,6 @@ Using Docker is the recommended way to deploy the bot.
 -   **/bind <TeamSpeak 唯一ID>**
     将你的 Telegram 账号绑定到你的 TeamSpeak 唯一ID。要查找你的唯一ID，请打开 TeamSpeak 并前往 `工具 -> 身份` (或 `Ctrl+I`)。
     *示例: `/bind AbCdEfG...=`*
-
--   **/unbind**
-    解除你的 Telegram 账号与 TeamSpeak 身份之间的绑定。
 
 ### 🐳 使用 Docker 运行
 

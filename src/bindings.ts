@@ -41,17 +41,24 @@ async function addBinding(tsUid: string, tgId: number, tgDisplayName: string) {
   await saveBindings();
 }
 
-export { loadBindings, getBinding, addBinding, removeBindingByTgId };
-export type { Binding };
-
-async function removeBindingByTgId(tgId: number): Promise<boolean> {
-  const tsUidToRemove = Object.keys(bindings).find(
-    (tsUid) => bindings[tsUid].tgId === tgId,
-  );
-  if (tsUidToRemove) {
-    delete bindings[tsUidToRemove];
+async function removeBinding(tsUid: string) {
+  if (bindings[tsUid]) {
+    delete bindings[tsUid];
     await saveBindings();
     return true;
   }
   return false;
 }
+
+function findBindingByTgId(tgId: number): [string, Binding] | undefined {
+  return Object.entries(bindings).find(([, binding]) => binding.tgId === tgId);
+}
+
+export {
+  loadBindings,
+  getBinding,
+  addBinding,
+  removeBinding,
+  findBindingByTgId,
+};
+export type { Binding };

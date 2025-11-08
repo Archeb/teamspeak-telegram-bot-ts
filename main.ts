@@ -1,12 +1,13 @@
-import { botConfig } from "./config.ts";
 import { tsClient } from "./src/teamspeak.ts";
 import { tgBot } from "./src/telegram.ts";
 import { t } from "./src/i18n.ts";
+import { botConfig, telegramConfig } from "./config.ts";
 import {
   loadBindings,
   getBinding,
   addBinding,
-  removeBindingByTgId,
+  removeBinding,
+  findBindingByTgId,
 } from "./src/bindings.ts";
 
 interface OnlineClient {
@@ -72,10 +73,10 @@ async function main() {
   });
 
   teamspeak.on("clientdisconnect", (event: any) => {
-    const onlineClient = clidToClientMap.get(String(event.clid));
+    const onlineClient = clidToClientMap.get(String(event.client.clid));
     if (!onlineClient) return;
 
-    clidToClientMap.delete(String(event.clid));
+    clidToClientMap.delete(String(event.client.clid));
     clientChannelMap.delete(onlineClient.uid);
 
     const binding = getBinding(onlineClient.uid);
@@ -116,7 +117,9 @@ async function main() {
 
   telegram.command("bind", async (ctx) => {
     const tsUid = ctx.message.text.split(" ")[1];
-    if (!tsUid) return ctx.reply(t("bindUsage"));
+    if (!tsUid) {
+      return ctx.reply(t("bindUsage"));
+    }
 
     const client = await teamspeak.getClientByUID(tsUid);
     if (client) {
@@ -129,58 +132,72 @@ async function main() {
   });
 
   telegram.command("unbind", async (ctx) => {
-    const unlinked = await removeBindingByTgId(ctx.from.id);
-    if (unlinked) {
-      ctx.reply(t("unbindSuccess"));
+    const binding = findBindingByTgId(ctx.from.id);
+    if (binding) {
+      const [tsUid] = binding;
+      const client = await teamspeak.getClientByUID(tsUid);
+      await removeBinding(tsUid);
+      if (client) {
+        ctx.reply(t("unbindSuccess", client.nickname));
+      } else {
+        ctx.reply(t("unbindSuccess", tsUid));
+      }
     } else {
-      ctx.reply(t("unbindError"));
+      ctx.reply(t("notBound"));
     }
   });
 
-  // --- Polling for Client Moves & Group Title Update ---
+  // --- Polling for Client Moves ---
 
-  let lastUserCount = -1;
   setInterval(async () => {
     try {
       const clients = await teamspeak.clientList({ client_type: 0 });
-      const userCount = clients.length;
-
-      // Update group title if user count has changed
-      if (userCount !== lastUserCount) {
-        const chat = await telegram.telegram.getChat(botConfig.telegramChatId);
-        if ("title" in chat) {
-          const currentTitle = chat.title;
-          const newTitle = currentTitle.replace(/(\s*\(\d+\))?$/, ` (${userCount})`);
-          if (newTitle !== currentTitle) {
-            await telegram.telegram.setChatTitle(
-              botConfig.telegramChatId,
-              newTitle,
-            );
-          }
-        }
-        lastUserCount = userCount;
-      }
-
-      // Check for client moves
       for (const client of clients) {
         if (client.uniqueIdentifier === botUid) continue;
         const previousCid = clientChannelMap.get(client.uniqueIdentifier);
         const currentCid = String(client.cid);
         if (previousCid && previousCid !== currentCid) {
           const binding = getBinding(client.uniqueIdentifier);
-          if (botConfig.notifyOnlyBoundUsers && !binding) continue;
-          const channel = await teamspeak.getChannelByID(client.cid);
-          if (channel) {
-            const message = t("userMoved", client.nickname, channel.name);
-            tgBot.sendMessage(message);
+          if (botConfig.notifyOnlyBoundUsers && !binding) {
+            // Skip notification if user is not bound and config is set
+          } else {
+            const channel = await teamspeak.getChannelByID(client.cid);
+            if (channel) {
+              const message = t("userMoved", client.nickname, channel.name);
+              tgBot.sendMessage(message);
+            }
           }
         }
         clientChannelMap.set(client.uniqueIdentifier, currentCid);
       }
     } catch (err) {
-      console.error("Error in polling interval:", err);
+      console.error("Error polling for client moves:", err);
     }
   }, 5000);
+
+  // --- Update Telegram Group Title ---
+
+  setInterval(async () => {
+    try {
+      const clients = await teamspeak.clientList({ client_type: 0 });
+      const onlineCount = clients.length;
+      const chat = await telegram.telegram.getChat(telegramConfig.chatId);
+      if ("title" in chat) {
+        const currentTitle = chat.title;
+        const newTitle = currentTitle.replace(/ \(\d+\)$/, "") +
+          ` (${onlineCount})`;
+
+        if (currentTitle !== newTitle) {
+          await telegram.telegram.setChatTitle(
+            telegramConfig.chatId,
+            newTitle,
+          );
+        }
+      }
+    } catch (err) {
+      console.error("Error updating Telegram group title:", err);
+    }
+  }, 30000);
 
   console.log("Bot is running...");
 }
