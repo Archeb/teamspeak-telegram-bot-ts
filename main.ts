@@ -94,15 +94,35 @@ async function main() {
 
   telegram.command("listuser", async (ctx) => {
     const clients = await teamspeak.clientList({ client_type: 0 });
-    const userListLines = clients.map((c) => {
-      const binding = getBinding(c.uniqueIdentifier);
-      if (binding) {
-        const mention = `[${binding.tgDisplayName}](tg://user?id=${binding.tgId})`;
-        return `- ${c.nickname} (${mention})`;
+    const channels = await teamspeak.channelList();
+
+    const clientsByChannel: { [cid: string]: any[] } = {};
+    for (const client of clients) {
+      if (!clientsByChannel[client.cid]) {
+        clientsByChannel[client.cid] = [];
       }
-      return `- ${c.nickname}`;
-    });
-    const userList = userListLines.join("\n");
+      clientsByChannel[client.cid].push(client);
+    }
+
+    let userList = "";
+    for (const channel of channels) {
+      const channelClients = clientsByChannel[channel.cid];
+      if (channelClients && channelClients.length > 0) {
+        userList += `*[${channel.name}]*\n`;
+        for (const client of channelClients) {
+          const binding = getBinding(client.uniqueIdentifier);
+          if (binding) {
+            const mention =
+              `[${binding.tgDisplayName}](tg://user?id=${binding.tgId})`;
+            userList += `- ${client.nickname} (${mention})\n`;
+          } else {
+            userList += `- ${client.nickname}\n`;
+          }
+        }
+        userList += "\n";
+      }
+    }
+
     ctx.replyWithMarkdown(t("userList", userList));
   });
 
